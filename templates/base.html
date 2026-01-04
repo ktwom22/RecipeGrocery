@@ -2,11 +2,45 @@
 <html lang="en">
 
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBM4SZY6EE"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-JBM4SZY6EE');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Dynamic Page Title -->
     <title>{% block title %}Meal Planner{% endblock %}</title>
+
+    <!-- Meta Description for SEO -->
+    <meta name="description" content="Plan your meals, create grocery lists, and discover quick recipes with Meal Planner. Simplify your cooking workflow for delicious and easy meals.">
+
+    <!-- Meta Keywords for SEO -->
+    <meta name="keywords" content="meal planner, grocery list app, easy recipes, quick meals, dinner ideas, what to cook tonight, meal preparation, fast recipes.">
+
+    <!-- Open Graph Metadata for Social Sharing -->
+    <meta property="og:title" content="{% block og_title %}Meal Planner{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Discover recipes, plan meals, and easily create shopping lists with Meal Planner. Simplify your cooking experience!{% endblock %}">
+    <meta property="og:image" content="{{ url_for('static', filename='assets/share_image.jpg') }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="website">
+
+    <!-- Favicon -->
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
+    <!-- CSS and Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
     <!-- Global Styles -->
     <style>
+        /* General Body Styling */
         body {
             font-family: 'Roboto', sans-serif;
             background: #F7F8FC;
@@ -14,38 +48,93 @@
             margin: 0;
             padding: 0;
         }
+
+        /* Header Styling */
         header {
             background: #007BFF;
+            color: #ffffff;
             padding: 20px;
             text-align: center;
         }
+
         header h1 {
-            color: #ffffff;
+            font-size: 1.8rem;
             margin: 0;
         }
+
         nav {
-            margin: 20px 0;
+            margin-top: 10px;
         }
+
         nav a {
             color: #ffffff;
-            margin: 0 10px;
+            margin: 0 15px;
             text-decoration: none;
+            font-size: 1rem;
         }
+
         nav a:hover {
             text-decoration: underline;
         }
+
+        /* Main Content Styling */
         main {
             max-width: 960px;
             margin: 30px auto;
             padding: 20px;
             background: #ffffff;
             border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
+
+        /* Footer Styling */
         footer {
             text-align: center;
             padding: 10px 0;
             background: #212121;
             color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Media Queries */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            nav a {
+                font-size: 0.9rem;
+                margin: 0 10px;
+            }
+
+            body {
+                padding: 0 10px;
+            }
+
+            main {
+                margin: 20px auto;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 15px;
+            }
+
+            header h1 {
+                font-size: 1.2rem;
+            }
+
+            nav a {
+                font-size: 0.8rem;
+                margin: 0 5px;
+            }
+
+            footer {
+                padding: 8px 0;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
