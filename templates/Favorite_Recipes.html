@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}My Favorite Recipes{% endblock %}
+
+{% block content %}
+<h1>My Favorite Recipes</h1>
+
+<div class="favorite-recipes-container">
+    {% if favorite_recipes %}
+    <ul class="favorite-recipes-list">
+        {% for recipe in favorite_recipes %}
+        <li class="favorite-recipe-card">
+            <div class="recipe-image">
+                <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
+            </div>
+            <div class="recipe-info">
+                <h2>{{ recipe.name }}</h2>
+                <p>Date Saved: {{ recipe.date_saved }}</p>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty-message">You haven't favorited any recipes yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes</title>
+</head>
+<body>
+    <h1>Search for Recipes</h1>
+    <form action="/generate" method="POST">
+        <label for="type">Choose a recipe type:</label>
+        <select name="type" id="type">
+            <option value="all">All</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="non-vegetarian">Non-Vegetarian</option>
+        </select>
+        <br>
+        <label for="ingredient">Filter by favorite ingredient:</label>
+        <input type="text" name="ingredient" id="ingredient" placeholder="e.g., chicken, mushroom">
+        <br>
+        <button type="submit">Search</button>
+    </form>
+
+    <div>
+        {% for recipe in recipes %}
+            <h2>{{ recipe.name }}</h2>
+            <img src="{{ recipe.image }}" alt="{{ recipe.name }}" style="width:200px;height:auto;">
+            <p><strong>Diet:</strong> {{ recipe.diet }}</p>
+            <p><strong>Prep Time:</strong> {{ recipe.prep_time }} minutes</p>
+            <p><strong>Cook Time:</strong> {{ recipe.cook_time }} minutes</p>
+            <h4>Ingredients:</h4>
+            <ul>
+                {% for ingredient in recipe.ingredients %}
+                    <li>{{ ingredient }}</li>
+                {% endfor %}
+            </ul>
+            <h4>Instructions:</h4>
+            <p>{{ recipe.instructions }}</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

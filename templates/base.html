@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Meal Planner{% endblock %}</title>
+    <!-- Global Styles -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #F7F8FC;
+            color: #212121;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: #007BFF;
+            padding: 20px;
+            text-align: center;
+        }
+        header h1 {
+            color: #ffffff;
+            margin: 0;
+        }
+        nav {
+            margin: 20px 0;
+        }
+        nav a {
+            color: #ffffff;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            max-width: 960px;
+            margin: 30px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px 0;
+            background: #212121;
+            color: #ffffff;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Meal Planner</h1>
+        <nav>
+            <a href="{{ url_for('main_page') }}">Home</a>
+            <a href="{{ url_for('shopping_list') }}">Shopping List</a>
+            <a href="{{ url_for('saved_recipes') }}">Saved Recipes</a>
+            <a href="{{ url_for('favorite_recipes') }}">Favorites</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Meal Planner. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}My Saved Recipes{% endblock %}
+
+{% block content %}
+<h1>My Saved Recipes</h1>
+
+<div class="saved-recipes-container">
+    {% if saved_recipes %}
+    <ul class="saved-recipes-list">
+        {% for recipe in saved_recipes %}
+        <li class="saved-recipe-card">
+            <div class="recipe-image">
+                <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
+            </div>
+            <div class="recipe-info">
+                <h2>{{ recipe.name }}</h2>
+                <p>Date Saved: {{ recipe.date_saved }}</p>
+
+                <!-- Favorite/Unfavorite Button -->
+                <form method="POST">
+                    <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                    <button type="submit" name="favorite_recipe" class="favorite-button">
+                        {% if recipe.is_favorite %}
+                        ★ Unfavorite
+                        {% else %}
+                        ☆ Favorite
+                        {% endif %}
+                    </button>
+                </form>
+
+                <!-- Remove Button -->
+                <form method="POST" style="margin-top: 10px;">
+                    <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
+                    <button type="submit" name="remove_recipe" class="remove-button">Remove</button>
+                </form>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty-message">You haven't saved any recipes yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered Recipes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .recipe {
+            background: #fff;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .recipe img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 5px;
+            margin-right: 20px;
+        }
+        .recipe-details {
+            flex: 1;
+        }
+        .recipe-details h2 {
+            margin: 0 0 10px;
+        }
+        .recipe-details p {
+            margin: 5px 0;
+        }
+        .recipe-details ul, ol {
+            padding-left: 20px;
+        }
+        a {
+            display: block;
+            width: fit-content;
+            margin: 20px auto;
+            background: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        a:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Filtered Recipes</h1>
+        <div>
+            {% if recipes %}
+                {% for recipe in recipes %}
+                    <div class="recipe">
+                        <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
+                        <div class="recipe-details">
+                            <h2>{{ recipe.name }}</h2>
+                            <p><strong>Diet:</strong> {{ recipe.diet }}</p>
+                            <p><strong>Prep Time:</strong> {{ recipe.prep_time }} minutes</p>
+                            <p><strong>Cook Time:</strong> {{ recipe.cook_time }} minutes</p>
+                            <h4>Ingredients:</h4>
+                            <ul>
+                                {% for ingredient in recipe.ingredients %}
+                                    <li>{{ ingredient }}</li>
+                                {% endfor %}
+                            </ul>
+                            <h4>Cooking Instructions:</h4>
+                            {% if recipe.instructions %}
+                                <ol>
+                                    {% for step in recipe.instructions.split('.') if step.strip() %}
+                                        <li>{{ step.strip() }}</li>
+                                    {% endfor %}
+                                </ol>
+                            {% else %}
+                                <p>No instructions available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No recipes found matching your criteria.</p>
+            {% endif %}
+        </div>
+        <a href="/">Go Back to Recipe List</a>
+    </div>
+</body>
+</html>
