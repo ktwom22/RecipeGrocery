@@ -1,110 +1,143 @@
 {% extends "base.html" %}
 
-{% block title %}{{ recipe.name }}{% endblock %}
+{% block title %}{{ recipe.name }} | ChefPlanner{% endblock %}
 
 {% block content %}
-<style>
-    .recipe-container {
-        width: 90%;
-        max-width: 800px;
-        margin: 30px auto;
-        background: #ffffff;
-        padding: 30px;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
-        border-radius: 12px;
-    }
-
-    .recipe-header { text-align: center; margin-bottom: 25px; }
-    .recipe-header h1 { font-size: 2.5rem; color: #333; margin-bottom: 10px; }
-    
-    .recipe-img {
-        width: 100%;
-        max-height: 450px;
-        object-fit: cover;
-        border-radius: 8px;
-        margin-bottom: 25px;
-    }
-
-    .section-title {
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 10px;
-        margin-top: 30px;
-        color: #4CAF50;
-    }
-
-    .ingredients-list {
-        columns: 2;
-        -webkit-columns: 2;
-        -moz-columns: 2;
-        list-style-type: none;
-        padding: 0;
-    }
-
-    .ingredients-list li {
-        padding: 8px 0;
-        border-bottom: 1px solid #eee;
-        break-inside: avoid;
-    }
-
-    .action-box {
-        background: #f9f9f9;
-        padding: 20px;
-        border-radius: 8px;
-        text-align: center;
-        margin: 30px 0;
-    }
-
-    .btn-add {
-        padding: 12px 25px;
-        background: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-    }
-
-    .btn-add:hover { background: #0056b3; }
-
-    .nav-links { margin-bottom: 20px; }
-    .nav-links a { color: #007BFF; text-decoration: none; }
-</style>
-
 <div class="recipe-container">
-    <div class="nav-links">
-        <a href="{{ url_for('main_page') }}">← Back to Recipes</a>
-    </div>
-
     <div class="recipe-header">
-        <h1>{{ recipe.name }}</h1>
-        <p><i class="fas fa-eye"></i> {{ recipe.views }} people viewed this recipe</p>
+        <div class="header-image">
+            <img src="{{ recipe.image }}" alt="{{ recipe.name }}" onerror="this.src='https://images.unsplash.com/photo-1495195129352-aec325b55b65?auto=format&fit=crop&q=80&w=1000'">
+        </div>
+
+        <div class="header-content">
+            <span class="recipe-type-tag">{{ recipe.type }}</span>
+            <h1>{{ recipe.name }}</h1>
+
+            <div class="recipe-stats">
+                <div class="stat-item">
+                    <i class="fa-regular fa-clock"></i>
+                    <span><strong>Prep:</strong> {{ recipe.prep_time }}m</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fa-solid fa-fire-burner"></i>
+                    <span><strong>Cook:</strong> {{ recipe.cook_time }}m</span>
+                </div>
+            </div>
+
+            <form method="POST" class="action-form">
+                <button type="submit" class="btn-add-list">
+                    <i class="fa-solid fa-cart-plus"></i> Add to Shopping List
+                </button>
+            </form>
+        </div>
     </div>
 
-    {% if recipe.image %}
-        <img src="{{ recipe.image }}" class="recipe-img" alt="{{ recipe.name }}">
-    {% else %}
-        <div style="height:200px; background:#eee; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">No Image Available</div>
-    {% endif %}
+    <div class="recipe-grid">
+        <aside class="ingredients-section">
+            <h3><i class="fa-solid fa-list-check"></i> Ingredients</h3>
+            <ul class="ingredient-list">
+                {% for ing in recipe.ingredients %}
+                <li>{{ ing }}</li>
+                {% endfor %}
+            </ul>
+        </aside>
 
-    <h2 class="section-title">Ingredients</h2>
-    <ul class="ingredients-list">
-        {% for ingredient in recipe.ingredients %}
-            <li>{{ ingredient }}</li>
-        {% endfor %}
-    </ul>
-
-    <div class="action-box">
-        <h3>Scale this Recipe</h3>
-        <form method="POST">
-            <label for="plates">Number of Plates:</label>
-            <input type="number" name="plates" id="plates" value="1" min="1" style="width: 60px; padding: 8px;">
-            <button type="submit" class="btn-add">Add Ingredients to Shopping List</button>
-        </form>
-    </div>
-
-    <h2 class="section-title">Instructions</h2>
-    <div style="line-height: 1.8; color: #444;">
-        {{ recipe.instructions | replace('\n', '<br>') | safe if recipe.instructions else "No instructions provided." }}
+        <main class="instructions-section">
+            <h3><i class="fa-solid fa-kitchen-set"></i> Preparation</h3>
+            <div class="instruction-steps">
+                {% if recipe.instructions is string %}
+                    <div class="step">
+                        <p class="step-text">{{ recipe.instructions }}</p>
+                    </div>
+                {% else %}
+                    {% for step in recipe.instructions %}
+                    <div class="step">
+                        <div class="step-number">{{ loop.index }}</div>
+                        <p class="step-text">{{ step }}</p>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </main>
     </div>
 </div>
+
+<style>
+    .recipe-container { max-width: 1100px; margin: 0 auto; padding: 20px 0; }
+
+    /* Layout */
+    .recipe-header {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 40px;
+        background: white;
+        padding: 30px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 30px;
+        align-items: center;
+    }
+
+    .header-image img { width: 100%; height: 400px; object-fit: cover; border-radius: 12px; }
+    .header-content h1 { font-size: 2.2rem; color: var(--secondary); margin: 15px 0; line-height: 1.2; }
+
+    .recipe-type-tag {
+        background: #e6fffa; color: var(--primary); padding: 4px 12px;
+        border-radius: 20px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;
+    }
+
+    .recipe-stats { display: flex; gap: 25px; margin: 20px 0; }
+    .stat-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
+    .stat-item i { color: var(--primary); }
+
+    .btn-add-list {
+        background: var(--primary); color: white; border: none; padding: 16px;
+        border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer;
+        width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: 0.2s;
+    }
+    .btn-add-list:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+    /* Content Grid */
+    .recipe-grid { display: grid; grid-template-columns: 320px 1fr; gap: 30px; align-items: start; }
+
+    .ingredients-section, .instructions-section {
+        background: white; padding: 30px; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .ingredient-list { list-style: none; margin-top: 15px; }
+    .ingredient-list li { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
+
+    /* FIX FOR CHARACTER BREAKING */
+    .instruction-steps { display: flex; flex-direction: column; gap: 20px; margin-top: 15px; }
+
+    .step {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        width: 100%; /* Forces container to stay wide */
+    }
+
+    .step-number {
+        background: var(--primary); color: white;
+        width: 28px; height: 28px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; flex-shrink: 0; /* Prevents number from squishing */
+        font-size: 0.85rem;
+    }
+
+    .step-text {
+        flex: 1; /* Key: Text takes all remaining space */
+        line-height: 1.6;
+        color: var(--text-main);
+        margin: 0;
+        white-space: normal; /* Prevents vertical stacking */
+    }
+
+    @media (max-width: 850px) {
+        .recipe-header { grid-template-columns: 1fr; }
+        .recipe-grid { grid-template-columns: 1fr; }
+        .header-image img { height: 250px; }
+    }
+</style>
 {% endblock %}

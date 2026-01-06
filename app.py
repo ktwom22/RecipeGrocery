@@ -92,62 +92,64 @@ def get_category(item_name):
     return "Other"
 
 
+
 # --- 3. ROUTES ---
 
 @app.route("/")
 def main_page():
+    # Load all recipes
     all_recipes = load_recipes()
-    views = session.get("recipe_views", {})
-    favs = json.loads(current_user.favorite_ids) if current_user.is_authenticated else []
-    ready = json.loads(current_user.ready_to_cook_ids) if current_user.is_authenticated else []
 
-    for r in all_recipes:
-        idx = r['original_index']
-        r['views_count'] = views.get(str(idx), 0)
-        r['is_favorite'] = idx in favs
-        r['is_saved'] = idx in ready
+    # Get the search term from the URL (Must match the 'name' attribute in HTML)
+    search_query = request.args.get('search', '').lower()
 
-    query = request.args.get("q", "").lower().strip()
-    recipes = [r for r in all_recipes if query in r["name"].lower()] if query else all_recipes
-    return render_template("main_page.html", recipes=recipes)
+    if search_query:
+        # Filter recipes where the name or any ingredient matches the search
+        filtered_recipes = [
+            r for r in all_recipes
+            if search_query in r['name'].lower()
+               or any(search_query in ing.lower() for ing in r['ingredients'])
+        ]
+        return render_template("main_page.html", recipes=filtered_recipes)
+
+    # If no search, show all recipes
+    return render_template("main_page.html", recipes=all_recipes)
 
 
 @app.route("/recipe/<int:recipe_id>", methods=["GET", "POST"])
 def recipe_details(recipe_id):
+    # 1. Load the data first so it's available for both GET and POST
     recipes = load_recipes()
     recipe = recipes[recipe_id]
 
-    # Session-based view counter
-    views = session.get("recipe_views", {})
-    views[str(recipe_id)] = views.get(str(recipe_id), 0) + 1
-    session["recipe_views"] = views
-
     if request.method == "POST":
-        if not current_user.is_authenticated: return redirect(url_for('login'))
+        if not current_user.is_authenticated:
+            return redirect(url_for('login'))
 
-        plates = int(request.form.get("plates", 1))
+        plates = 1
         for ing in recipe.get("ingredients", []):
             amt, unit, name = split_ingredient(ing)
             actual_amt = (amt if amt > 0 else 1.0) * plates
 
-            # Smart Merge: check if item exists for user
-            existing = ShoppingItem.query.filter_by(user_id=current_user.id, name=name, unit=unit).first()
+            existing = ShoppingItem.query.filter_by(
+                user_id=current_user.id, name=name, unit=unit
+            ).first()
+
             if existing:
                 existing.quantity += actual_amt
             else:
-                new_item = ShoppingItem(name=name, quantity=actual_amt, unit=unit,
-                                        category=get_category(name), owner=current_user)
+                new_item = ShoppingItem(
+                    name=name, quantity=actual_amt, unit=unit,
+                    category=get_category(name), owner=current_user
+                )
                 db.session.add(new_item)
 
-        # Update Ready to Cook list in DB
-        ready_list = json.loads(current_user.ready_to_cook_ids)
-        if recipe_id not in ready_list:
-            ready_list.append(recipe_id)
-            current_user.ready_to_cook_ids = json.dumps(ready_list)
-
         db.session.commit()
+        # After POST, we redirect
         return redirect(url_for('shopping_list'))
 
+    # --- THE MISSING PART ---
+    # This must be outside the 'if POST' block so it runs during a normal page visit
     return render_template("recipe_details.html", recipe=recipe)
 
 

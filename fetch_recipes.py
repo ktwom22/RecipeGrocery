@@ -4,92 +4,93 @@ from dotenv import load_dotenv
 import json
 import time
 
-# Load environment variables
 load_dotenv()
-
-# Get the Spoonacular API key from .env
 API_KEY = os.getenv('SPOONACULAR_API_KEY')
 
-# Function to fetch recipes from the Spoonacular API
+
 def fetch_recipes(number):
+    # random?number=X is the best way to get fresh data
     url = f"https://api.spoonacular.com/recipes/random?apiKey={API_KEY}&number={number}"
     response = requests.get(url)
-
     if response.status_code == 200:
         return response.json().get('recipes', [])
-    else:
-        print("Error fetching recipes:", response.content)
-        return []
+    return []
 
-# Function to determine if a recipe is vegetarian
+
 def is_vegetarian(recipe):
-    non_vegetarian_ingredients = [
-        "chicken", "egg", "fish", "beef", "pork", "sausage", "lamb", "ham", "bacon", "duck", "shrimp", "meat"
-    ]
-    for ingredient in recipe.get("extendedIngredients", []):
-        ingredient_name = ingredient["name"].lower()
-        if any(non_veg in ingredient_name for non_veg in non_vegetarian_ingredients):
+    # Check both the API flag and the ingredient list for accuracy
+    if recipe.get("vegetarian"): return True
+    non_veg = ["chicken", "beef", "pork", "fish", "meat", "bacon", "shrimp"]
+    for ing in recipe.get("extendedIngredients", []):
+        if any(nv in ing["name"].lower() for nv in non_veg):
             return False
-    if "vegetarian" in recipe.get("diets", []):
-        return True
     return False
 
-# Function to format recipes for storage
+
 def format_recipes(recipes):
     formatted = []
-    for recipe in recipes:
-        # Format ingredient amounts and units properly
-        ingredients = []
-        for ingredient in recipe.get("extendedIngredients", []):
-            amount = ingredient.get("amount", 0)
-            unit = ingredient.get("unit", "").strip()
-            ingredients.append(f"{amount} {unit} of {ingredient['name']}")
+    for r in recipes:
+        # 1. Clean Instructions: Convert string to a LIST to fix character-stacking bug
+        raw_instructions = r.get("instructions", "No instructions available.")
+        if raw_instructions:
+            # Split by periods or newlines to create a clean list for your frontend loop
+            instruction_list = [step.strip() for step in
+                                raw_instructions.replace('<li>', '').replace('</li>', '').split('.') if
+                                len(step.strip()) > 5]
+        else:
+            instruction_list = ["Step-by-step instructions not provided."]
 
-        # Clean cooking instructions for better readability
-        instructions = recipe.get("instructions", "No instructions available.")
-        if instructions.startswith("<ol>"):
-            instructions = instructions.replace("<ol>", "").replace("</ol>", "").replace("<li>", "- ").replace("</li>", "")
+        # 2. Smart Time Calculation: Ensure we never have 'null'
+        total_time = r.get("readyInMinutes", 30)
+        prep = r.get("preparationMinutes")
+        cook = r.get("cookingMinutes")
+
+        # If Spoonacular gives us 0 or None, we estimate it
+        if not prep or prep <= 0: prep = 10
+        if not cook or cook <= 0: cook = total_time - prep if total_time > prep else 20
 
         formatted.append({
-            "name": recipe.get("title", "No title"),
+            "name": r.get("title"),
             "type": "dinner",
-            "diet": "vegetarian" if is_vegetarian(recipe) else "non-vegetarian",
-            "ingredients": ingredients,
-            "image": recipe.get("image", "No image available"),
-            "prep_time": recipe.get("preparationMinutes", 0),
-            "cook_time": recipe.get("cookingMinutes", 0),
-            "instructions": instructions
+            "diet": "vegetarian" if is_vegetarian(r) else "non-vegetarian",
+            "ingredients": [f"{i['original']}" for i in r.get("extendedIngredients", [])],
+            "image": r.get("image"),
+            "prep_time": prep,
+            "cook_time": cook,
+            "instructions": instruction_list  # Now a list of strings!
         })
     return formatted
 
-# Function to save recipes to file
-def save_recipes_to_file(total_recipes, batch_size):
+
+def append_recipes(total_to_add, batch_size):
     all_recipes = []
 
-    try:
+    # LOAD EXISTING DATA (So we don't delete it)
+    if os.path.exists("recipes.json"):
         with open("recipes.json", "r") as f:
-            existing_recipes = json.load(f)
-            all_recipes.extend(existing_recipes)
-    except (json.JSONDecodeError, FileNotFoundError):
-        print("No existing recipes found. Starting fresh.")
+            try:
+                all_recipes = json.load(f)
+                print(f"Loaded {len(all_recipes)} existing recipes.")
+            except:
+                print("Fresh start.")
 
-    remaining = total_recipes - len(all_recipes)
+    added = 0
+    while added < total_to_add:
+        current_batch = min(batch_size, total_to_add - added)
+        raw = fetch_recipes(current_batch)
+        if not raw: break
 
-    while remaining > 0:
-        batch_size = min(batch_size, remaining)
-        recipes = fetch_recipes(batch_size)
-        formatted_recipes = format_recipes(recipes)
-        all_recipes.extend(formatted_recipes)
+        formatted = format_recipes(raw)
+        all_recipes.extend(formatted)
 
+        # SAVE EVERYTHING BACK
         with open("recipes.json", "w") as f:
             json.dump(all_recipes, f, indent=4)
 
-        remaining -= len(formatted_recipes)
-        print(f"Fetched {len(formatted_recipes)} recipes. Remaining: {remaining}.")
-        time.sleep(2)
+        added += len(formatted)
+        print(f"Progress: {added}/{total_to_add} added.")
+        time.sleep(1)  # Be nice to the API
+
 
 if __name__ == "__main__":
-    TOTAL_RECIPES = 100  # Total number of recipes to fetch
-    BATCH_SIZE = 20
-    save_recipes_to_file(TOTAL_RECIPES, BATCH_SIZE)
-    print("Recipes saved to recipes.json")
+    append_recipes(10, 5)  # Adds 10 more recipes to your current file
