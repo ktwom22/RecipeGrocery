@@ -1,139 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ recipe.name }}</title>
-    <style>
-        /* General Styling */
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
 
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto;
-            background: #ffffff;
-            padding: 20px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
+{% block title %}{{ recipe.name }}{% endblock %}
 
-        img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+{% block content %}
+<style>
+    .recipe-container {
+        width: 90%;
+        max-width: 800px;
+        margin: 30px auto;
+        background: #ffffff;
+        padding: 30px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+    }
 
-        h1 {
-            text-align: center;
-            font-size: 2.5rem;
-            color: #007BFF;
-            margin-bottom: 20px;
-        }
+    .recipe-header { text-align: center; margin-bottom: 25px; }
+    .recipe-header h1 { font-size: 2.5rem; color: #333; margin-bottom: 10px; }
+    
+    .recipe-img {
+        width: 100%;
+        max-height: 450px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
 
-        h2 {
-            color: #333;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-        }
+    .section-title {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        margin-top: 30px;
+        color: #4CAF50;
+    }
 
-        ul {
-            list-style-type: disc;
-            padding-left: 20px;
-            color: #555;
-            line-height: 1.6;
-        }
+    .ingredients-list {
+        columns: 2;
+        -webkit-columns: 2;
+        -moz-columns: 2;
+        list-style-type: none;
+        padding: 0;
+    }
 
-        p {
-            font-size: 1rem;
-            color: #575757;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
+    .ingredients-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+        break-inside: avoid;
+    }
 
-        /* Actions Section Styling */
-        .actions {
-            text-align: center;
-            margin: 20px 0;
-        }
+    .action-box {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin: 30px 0;
+    }
 
-        input[type="number"] {
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            margin-right: 10px;
-        }
+    .btn-add {
+        padding: 12px 25px;
+        background: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+    }
 
-        button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            background-color: #007BFF;
-            color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+    .btn-add:hover { background: #0056b3; }
 
-        button:hover {
-            background-color: #0056b3;
-        }
+    .nav-links { margin-bottom: 20px; }
+    .nav-links a { color: #007BFF; text-decoration: none; }
+</style>
 
-        /* Footer Placeholder Image */
-        .placeholder {
-            text-align: center;
-            color: #777;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Recipe Title -->
-        <h1>{{ recipe.name }}</h1>
-
-        <!-- Recipe Image -->
-        {% if recipe.image %}
-        <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
-        {% else %}
-        <img src="https://via.placeholder.com/600x400" alt="No Image">
-        <p class="placeholder">Image not available</p>
-        {% endif %}
-
-        <!-- Ingredients Section -->
-        <h2>Ingredients</h2>
-        {% if recipe.ingredients %}
-        <ul>
-            {% for ingredient in recipe.ingredients %}
-            <li>{{ ingredient }}</li>
-            {% endfor %}
-        </ul>
-        {% else %}
-        <p>No ingredients listed for this recipe.</p>
-        {% endif %}
-
-        <!-- Actions Section -->
-        <div class="actions">
-            <form method="POST">
-                <label for="plates">Plates:</label>
-                <input type="number" name="plates" id="plates" value="1" min="1" required>
-                <button type="submit">Add to Shopping List</button>
-            </form>
-        </div>
-
-        <!-- Instructions Section -->
-        <h2>Instructions</h2>
-        {% if recipe.instructions %}
-        <p>{{ recipe.instructions }}</p>
-        {% else %}
-        <p>No instructions provided for this recipe.</p>
-        {% endif %}
+<div class="recipe-container">
+    <div class="nav-links">
+        <a href="{{ url_for('main_page') }}">← Back to Recipes</a>
     </div>
-</body>
-</html>
+
+    <div class="recipe-header">
+        <h1>{{ recipe.name }}</h1>
+        <p><i class="fas fa-eye"></i> {{ recipe.views }} people viewed this recipe</p>
+    </div>
+
+    {% if recipe.image %}
+        <img src="{{ recipe.image }}" class="recipe-img" alt="{{ recipe.name }}">
+    {% else %}
+        <div style="height:200px; background:#eee; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:20px;">No Image Available</div>
+    {% endif %}
+
+    <h2 class="section-title">Ingredients</h2>
+    <ul class="ingredients-list">
+        {% for ingredient in recipe.ingredients %}
+            <li>{{ ingredient }}</li>
+        {% endfor %}
+    </ul>
+
+    <div class="action-box">
+        <h3>Scale this Recipe</h3>
+        <form method="POST">
+            <label for="plates">Number of Plates:</label>
+            <input type="number" name="plates" id="plates" value="1" min="1" style="width: 60px; padding: 8px;">
+            <button type="submit" class="btn-add">Add Ingredients to Shopping List</button>
+        </form>
+    </div>
+
+    <h2 class="section-title">Instructions</h2>
+    <div style="line-height: 1.8; color: #444;">
+        {{ recipe.instructions | replace('\n', '<br>') | safe if recipe.instructions else "No instructions provided." }}
+    </div>
+</div>
+{% endblock %}

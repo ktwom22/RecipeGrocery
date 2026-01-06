@@ -3,43 +3,171 @@
 {% block title %}My Saved Recipes{% endblock %}
 
 {% block content %}
-<h1>My Saved Recipes</h1>
+<style>
+    .saved-header {
+        text-align: center;
+        margin: 40px 0;
+        color: #2c3e50;
+    }
+
+    .saved-recipes-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .saved-recipes-list {
+        list-style: none;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .saved-recipe-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: transform 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .saved-recipe-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .recipe-image img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .recipe-info {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .recipe-info h2 {
+        margin: 0 0 10px 0;
+        font-size: 1.4rem;
+        color: #333;
+    }
+
+    .date-saved {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-bottom: 20px;
+    }
+
+    .card-actions {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 8px 15px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: opacity 0.2s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn:hover {
+        opacity: 0.8;
+    }
+
+    .favorite-button {
+        background: #fff;
+        border: 1px solid #e74c3c;
+        color: #e74c3c;
+    }
+
+    .favorite-button.active {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .remove-button {
+        background: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #dee2e6;
+    }
+
+    .view-button {
+        background: #007BFF;
+        color: white;
+        flex-grow: 1;
+    }
+
+    .empty-message {
+        text-align: center;
+        padding: 50px;
+        color: #95a5a6;
+        font-size: 1.2rem;
+    }
+</style>
 
 <div class="saved-recipes-container">
+    <h1 class="saved-header">My Saved Recipes</h1>
+
     {% if saved_recipes %}
-    <ul class="saved-recipes-list">
+    <div class="saved-recipes-list">
         {% for recipe in saved_recipes %}
-        <li class="saved-recipe-card">
+        <div class="saved-recipe-card">
             <div class="recipe-image">
-                <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
+                {% if recipe.image %}
+                    <img src="{{ recipe.image }}" alt="{{ recipe.name }}">
+                {% else %}
+                    <div style="height: 200px; background: #eee;"></div>
+                {% endif %}
             </div>
+
             <div class="recipe-info">
                 <h2>{{ recipe.name }}</h2>
-                <p>Date Saved: {{ recipe.date_saved }}</p>
+                <p class="date-saved">Saved on: {{ recipe.date_saved }}</p>
 
-                <!-- Favorite/Unfavorite Button -->
-                <form method="POST">
-                    <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-                    <button type="submit" name="favorite_recipe" class="favorite-button">
-                        {% if recipe.is_favorite %}
-                        ★ Unfavorite
-                        {% else %}
-                        ☆ Favorite
-                        {% endif %}
-                    </button>
-                </form>
+                <div class="card-actions">
+                    <form method="POST" style="display: contents;">
+                        <input type="hidden" name="recipe_id" value="{{ recipe.original_index }}">
+                        <button type="submit" name="favorite_recipe" class="btn favorite-button {% if recipe.is_favorite %}active{% endif %}">
+                            {% if recipe.is_favorite %}
+                            ❤️ Favorited
+                            {% else %}
+                            🤍 Favorite
+                            {% endif %}
+                        </button>
+                    </form>
 
-                <!-- Remove Button -->
-                <form method="POST" style="margin-top: 10px;">
-                    <input type="hidden" name="recipe_id" value="{{ recipe.id }}">
-                    <button type="submit" name="remove_recipe" class="remove-button">Remove</button>
-                </form>
+                    <form method="POST" style="display: contents;">
+                        <input type="hidden" name="recipe_id" value="{{ recipe.original_index }}">
+                        <button type="submit" name="remove_recipe" class="btn remove-button" onclick="return confirm('Remove from saved?')">
+                            🗑️
+                        </button>
+                    </form>
+
+                    <a href="{{ url_for('recipe_details', recipe_id=recipe.original_index) }}" class="btn view-button">
+                        View
+                    </a>
+                </div>
             </div>
-        </li>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
     {% else %}
-    <p class="empty-message">You haven't saved any recipes yet.</p>
+    <div class="empty-message">
+        <p>You haven't added any recipes to your shopping list yet.</p>
+        <a href="{{ url_for('main_page') }}" class="btn view-button">Browse Recipes</a>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

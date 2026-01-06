@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} | ChefPlanner{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fa-solid fa-leaf auth-logo"></i>
+            <h2>{{ action }}</h2>
+            <p>Welcome to your professional kitchen manager.</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-regular fa-envelope"></i>
+                    <input type="email" name="email" id="email" placeholder="name@example.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-icon-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="password" id="password" placeholder="••••••••" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-auth-submit">
+                {{ action }} 
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            {% if action == "Login" %}
+                <span>New here?</span> <a href="{{ url_for('register') }}">Create an account</a>
+            {% else %}
+                <span>Already have an account?</span> <a href="{{ url_for('login') }}">Sign in instead</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+    }
+
+    .auth-card {
+        background: white;
+        width: 100%;
+        max-width: 420px;
+        padding: 40px;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .auth-header { text-align: center; margin-bottom: 30px; }
+    .auth-logo { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
+    .auth-header h2 { font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main); }
+    .auth-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+
+    .input-icon-wrapper { position: relative; }
+    .input-icon-wrapper i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+    
+    .input-icon-wrapper input {
+        width: 100%;
+        padding: 12px 15px 12px 45px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .input-icon-wrapper input:focus { border-color: var(--primary); }
+
+    .btn-auth-submit {
+        width: 100%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .btn-auth-submit:hover { background: var(--primary-dark); }
+
+    .auth-footer { text-align: center; margin-top: 25px; font-size: 0.9rem; color: var(--text-muted); }
+    .auth-footer a { color: var(--primary); font-weight: 700; text-decoration: none; }
+    .auth-footer a:hover { text-decoration: underline; }
+</style>
+{% endblock %}

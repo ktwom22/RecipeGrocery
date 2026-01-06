@@ -1,163 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-JBM4SZY6EE"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-
-        gtag('config', 'G-JBM4SZY6EE');
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Dynamic Page Title -->
-    <title>{% block title %}Meal Planner{% endblock %}</title>
+    <title>{% block title %}ChefPlanner | Intelligent Meal Planning & Grocery Lists{% endblock %}</title>
+    <meta name="description" content="{% block description %}Plan your weekly meals, discover professional recipes, and generate organized shopping lists instantly with ChefPlanner.{% endblock %}">
+    <meta name="keywords" content="meal planner, grocery list generator, healthy recipes, digital cookbook, kitchen manager">
 
-    <!-- Meta Description for SEO -->
-    <meta name="description" content="Plan your meals, create grocery lists, and discover quick recipes with Meal Planner. Simplify your cooking workflow for delicious and easy meals.">
-
-    <!-- Meta Keywords for SEO -->
-    <meta name="keywords" content="meal planner, grocery list app, easy recipes, quick meals, dinner ideas, what to cook tonight, meal preparation, fast recipes.">
-
-    <!-- Open Graph Metadata for Social Sharing -->
-    <meta property="og:title" content="{% block og_title %}Meal Planner{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Discover recipes, plan meals, and easily create shopping lists with Meal Planner. Simplify your cooking experience!{% endblock %}">
-    <meta property="og:image" content="{{ url_for('static', filename='assets/share_image.jpg') }}">
-    <meta property="og:url" content="{{ request.url }}">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:title" content="ChefPlanner - Professional Meal Management">
+    <meta property="og:description" content="Organize your kitchen and save time on grocery shopping.">
+    <meta property="og:image" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}">
 
-    <!-- Favicon -->
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="ChefPlanner">
+    <meta property="twitter:description" content="Intelligent meal planning made simple.">
 
-    <!-- CSS and Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="canonical" href="{{ request.url }}">
 
-    <!-- Global Styles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    {% block extra_head %}{% endblock %}
+</head>
     <style>
-        /* General Body Styling */
+        :root {
+            --primary: #38a169;
+            --primary-dark: #2f855a;
+            --secondary: #2d3748;
+            --bg-body: #f7fafc;
+            --text-main: #1a202c;
+            --text-muted: #718096;
+            --white: #ffffff;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Roboto', sans-serif;
-            background: #F7F8FC;
-            color: #212121;
-            margin: 0;
-            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
         }
 
-        /* Header Styling */
-        header {
-            background: #007BFF;
-            color: #ffffff;
-            padding: 20px;
-            text-align: center;
+        /* --- NAVIGATION RIBBON --- */
+        .navbar {
+            background: var(--white);
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        header h1 {
-            font-size: 1.8rem;
-            margin: 0;
-        }
-
-        nav {
-            margin-top: 10px;
-        }
-
-        nav a {
-            color: #ffffff;
-            margin: 0 15px;
+        .nav-logo {
+            font-weight: 800;
+            font-size: 1.4rem;
+            color: var(--primary);
             text-decoration: none;
-            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1100; /* Stay above mobile menu */
         }
 
-        nav a:hover {
-            text-decoration: underline;
+        /* Desktop Menu */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 24px;
         }
 
-        /* Main Content Styling */
-        main {
-            max-width: 960px;
-            margin: 30px auto;
-            padding: 20px;
-            background: #ffffff;
+        .nav-link {
+            text-decoration: none;
+            color: var(--secondary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link:hover { color: var(--primary); }
+
+        .btn-shopping {
+            background: var(--primary);
+            color: white !important;
+            padding: 8px 16px;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-weight: 700;
         }
 
-        /* Footer Styling */
-        footer {
-            text-align: center;
-            padding: 10px 0;
-            background: #212121;
-            color: #ffffff;
-            font-size: 0.9rem;
+        /* User Identity */
+        .user-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 20px;
+            border-left: 1px solid #edf2f7;
         }
 
-        /* Responsive Media Queries */
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.5rem;
+        /* Mobile Hamburger Icon */
+        .mobile-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--secondary);
+            z-index: 1100;
+        }
+
+        /* --- MOBILE RESPONSIVE LOGIC --- */
+        @media (max-width: 992px) {
+            .mobile-toggle { display: block; }
+
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%; /* Hidden off-screen */
+                width: 70%;
+                height: 100vh;
+                background: var(--white);
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 100px 40px;
+                gap: 30px;
+                transition: 0.3s ease-in-out;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.05);
             }
 
-            nav a {
-                font-size: 0.9rem;
-                margin: 0 10px;
-            }
+            .nav-menu.active { right: 0; }
 
-            body {
-                padding: 0 10px;
-            }
-
-            main {
-                margin: 20px auto;
-                padding: 15px;
+            .user-box {
+                border-left: none;
+                border-top: 1px solid #edf2f7;
+                padding-left: 0;
+                padding-top: 20px;
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
 
-        @media (max-width: 480px) {
-            header {
-                padding: 15px;
-            }
-
-            header h1 {
-                font-size: 1.2rem;
-            }
-
-            nav a {
-                font-size: 0.8rem;
-                margin: 0 5px;
-            }
-
-            footer {
-                padding: 8px 0;
-                font-size: 0.8rem;
-            }
-        }
+        /* Container & Global Styles */
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .btn-logout { color: #e53e3e; font-weight: 700; text-decoration: none; font-size: 0.9rem; }
     </style>
 </head>
-
 <body>
-    <header>
-        <h1>Meal Planner</h1>
-        <nav>
-            <a href="{{ url_for('main_page') }}">Home</a>
-            <a href="{{ url_for('shopping_list') }}">Shopping List</a>
-            <a href="{{ url_for('saved_recipes') }}">Saved Recipes</a>
-            <a href="{{ url_for('favorite_recipes') }}">Favorites</a>
-        </nav>
-    </header>
 
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+    <nav class="navbar">
+        <a href="{{ url_for('main_page') }}" class="nav-logo">
+            <i class="fa-solid fa-leaf"></i> ChefPlanner
+        </a>
 
-    <footer>
-        <p>&copy; 2026 Meal Planner. All rights reserved.</p>
-    </footer>
+        <div class="mobile-toggle" id="mobile-menu-btn">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+
+        <div class="nav-menu" id="nav-menu">
+            <a href="{{ url_for('main_page') }}" class="nav-link">Home</a>
+
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('favorite_recipes') }}" class="nav-link">
+                    <i class="fa-solid fa-heart"></i> Favorites
+                </a>
+                <a href="{{ url_for('saved_recipes') }}" class="nav-link">
+                    <i class="fa-solid fa-fire-burner"></i> Saved
+                </a>
+                <a href="{{ url_for('shopping_list') }}" class="nav-link btn-shopping">
+                    <i class="fa-solid fa-cart-shopping"></i> List
+                </a>
+
+                <div class="user-box">
+                    <span class="nav-link" style="font-size: 0.85rem; color: var(--text-muted);">
+                        <i class="fa-solid fa-circle-user"></i> {{ current_user.email.split('@')[0] }}
+                    </span>
+                    <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+                </div>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="nav-link">Login</a>
+                <a href="{{ url_for('register') }}" class="nav-link btn-shopping">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script>
+        const mobileBtn = document.getElementById('mobile-menu-btn');
+        const navMenu = document.getElementById('nav-menu');
+        const icon = mobileBtn.querySelector('i');
+
+        mobileBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+
+            // Switch between hamburger and "X" icon
+            if (navMenu.classList.contains('active')) {
+                icon.classList.replace('fa-bars', 'fa-xmark');
+            } else {
+                icon.classList.replace('fa-xmark', 'fa-bars');
+            }
+        });
+
+        // Close menu if a link is clicked
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                icon.classList.replace('fa-xmark', 'fa-bars');
+            });
+        });
+    </script>
 </body>
-
 </html>
