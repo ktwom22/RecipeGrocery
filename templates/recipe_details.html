@@ -10,7 +10,7 @@
         </div>
 
         <div class="header-content">
-            <span class="recipe-type-tag">{{ recipe.type }}</span>
+            <span class="diet-badge {{ recipe.diet }}">{{ recipe.diet | replace('-', ' ') }}</span>
             <h1>{{ recipe.name }}</h1>
 
             <div class="recipe-stats">
@@ -22,9 +22,12 @@
                     <i class="fa-solid fa-fire-burner"></i>
                     <span><strong>Cook:</strong> {{ recipe.cook_time }}m</span>
                 </div>
+                <div class="stat-item total-time">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span><strong>Total:</strong> {{ recipe.total_time }}m</span>
+                </div>
             </div>
-
-            <form method="POST" class="action-form">
+            <form action="{{ url_for('recipe_details', recipe_id=recipe.original_index) }}" method="POST">
                 <button type="submit" class="btn-add-list">
                     <i class="fa-solid fa-cart-plus"></i> Add to Shopping List
                 </button>
@@ -43,7 +46,7 @@
         </aside>
 
         <main class="instructions-section">
-            <h3><i class="fa-solid fa-kitchen-set"></i> Preparation</h3>
+            <h3><i class="fa-solid fa-kitchen-set"></i> Preparation Steps</h3>
             <div class="instruction-steps">
                 {% if recipe.instructions is string %}
                     <div class="step">
@@ -63,9 +66,17 @@
 </div>
 
 <style>
-    .recipe-container { max-width: 1100px; margin: 0 auto; padding: 20px 0; }
+    :root {
+        --primary: #38a169;
+        --primary-dark: #2f855a;
+        --secondary: #2d3748;
+        --text-main: #1a202c;
+        --text-muted: #718096;
+        --radius: 16px;
+    }
 
-    /* Layout */
+    .recipe-container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
+
     .recipe-header {
         display: grid;
         grid-template-columns: 1.2fr 1fr;
@@ -73,71 +84,92 @@
         background: white;
         padding: 30px;
         border-radius: var(--radius);
-        box-shadow: var(--shadow);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         margin-bottom: 30px;
         align-items: center;
     }
 
     .header-image img { width: 100%; height: 400px; object-fit: cover; border-radius: 12px; }
-    .header-content h1 { font-size: 2.2rem; color: var(--secondary); margin: 15px 0; line-height: 1.2; }
+    .header-content h1 { font-size: 2.5rem; color: var(--secondary); margin: 15px 0; line-height: 1.2; font-weight: 800; }
 
-    .recipe-type-tag {
-        background: #e6fffa; color: var(--primary); padding: 4px 12px;
-        border-radius: 20px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase;
+    .diet-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 30px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
+    .diet-badge.vegetarian { background: #e6fffa; color: #2c7a7b; }
+    .diet-badge.non-vegetarian { background: #fff5f5; color: #c53030; }
 
-    .recipe-stats { display: flex; gap: 25px; margin: 20px 0; }
-    .stat-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); }
-    .stat-item i { color: var(--primary); }
+    .recipe-stats { display: flex; flex-wrap: wrap; gap: 20px; margin: 25px 0; }
+    .stat-item { display: flex; align-items: center; gap: 8px; color: var(--text-muted); font-size: 0.95rem; }
+    .stat-item i { color: var(--primary); font-size: 1.1rem; }
+    .total-time { padding-left: 15px; border-left: 2px solid #edf2f7; color: var(--secondary); font-weight: 600; }
 
     .btn-add-list {
-        background: var(--primary); color: white; border: none; padding: 16px;
-        border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer;
-        width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
-        transition: 0.2s;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(56, 161, 105, 0.2);
     }
-    .btn-add-list:hover { background: var(--primary-dark); transform: translateY(-2px); }
+    .btn-add-list:hover { background: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 6px 15px rgba(56, 161, 105, 0.3); }
 
-    /* Content Grid */
-    .recipe-grid { display: grid; grid-template-columns: 320px 1fr; gap: 30px; align-items: start; }
+    .recipe-grid { display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start; }
 
     .ingredients-section, .instructions-section {
-        background: white; padding: 30px; border-radius: var(--radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        background: white;
+        padding: 35px;
+        border-radius: var(--radius);
+        box-shadow: 0 2px 12px rgba(0,0,0,0.03);
     }
 
-    .ingredient-list { list-style: none; margin-top: 15px; }
-    .ingredient-list li { padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
-
-    /* FIX FOR CHARACTER BREAKING */
-    .instruction-steps { display: flex; flex-direction: column; gap: 20px; margin-top: 15px; }
-
-    .step {
+    .ingredient-list { list-style: none; margin-top: 20px; padding: 0; }
+    .ingredient-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 1rem;
+        color: var(--text-main);
         display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        width: 100%; /* Forces container to stay wide */
+        align-items: center;
+    }
+    .ingredient-list li::before {
+        content: "•";
+        color: var(--primary);
+        font-weight: bold;
+        margin-right: 10px;
     }
 
+    /* INSTRUCTIONS FIX */
+    .instruction-steps { display: flex; flex-direction: column; gap: 25px; margin-top: 20px; }
+    .step { display: flex; gap: 20px; }
     .step-number {
         background: var(--primary); color: white;
-        width: 28px; height: 28px; border-radius: 50%;
+        width: 32px; height: 32px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
-        font-weight: 700; flex-shrink: 0; /* Prevents number from squishing */
-        font-size: 0.85rem;
+        font-weight: 800; flex-shrink: 0; font-size: 0.9rem;
     }
+    .step-text { flex: 1; line-height: 1.7; color: var(--text-main); margin: 0; font-size: 1.05rem; }
 
-    .step-text {
-        flex: 1; /* Key: Text takes all remaining space */
-        line-height: 1.6;
-        color: var(--text-main);
-        margin: 0;
-        white-space: normal; /* Prevents vertical stacking */
-    }
-
-    @media (max-width: 850px) {
-        .recipe-header { grid-template-columns: 1fr; }
+    @media (max-width: 992px) {
+        .recipe-header { grid-template-columns: 1fr; text-align: center; }
+        .recipe-stats { justify-content: center; }
         .recipe-grid { grid-template-columns: 1fr; }
-        .header-image img { height: 250px; }
+        .header-image img { height: 300px; }
+        .total-time { border-left: none; width: 100%; text-align: center; }
     }
 </style>
 {% endblock %}

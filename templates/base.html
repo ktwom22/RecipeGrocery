@@ -4,27 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}ChefPlanner | Intelligent Meal Planning & Grocery Lists{% endblock %}</title>
-    <meta name="description" content="{% block description %}Plan your weekly meals, discover professional recipes, and generate organized shopping lists instantly with ChefPlanner.{% endblock %}">
-    <meta name="keywords" content="meal planner, grocery list generator, healthy recipes, digital cookbook, kitchen manager">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.url }}">
-    <meta property="og:title" content="ChefPlanner - Professional Meal Management">
-    <meta property="og:description" content="Organize your kitchen and save time on grocery shopping.">
-    <meta property="og:image" content="{{ url_for('static', filename='img/og-preview.jpg', _external=True) }}">
-
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="ChefPlanner">
-    <meta property="twitter:description" content="Intelligent meal planning made simple.">
-
-    <link rel="canonical" href="{{ request.url }}">
+    <title>{% block title %}ChefPlanner | Intelligent Meal Planning{% endblock %}</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    {% block extra_head %}{% endblock %}
-</head>
     <style>
         :root {
             --primary: #38a169;
@@ -36,6 +20,7 @@
             --white: #ffffff;
             --radius: 12px;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --danger: #e53e3e;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -46,7 +31,7 @@
             line-height: 1.6;
         }
 
-        /* --- NAVIGATION RIBBON --- */
+        /* --- NAVIGATION --- */
         .navbar {
             background: var(--white);
             height: 70px;
@@ -68,15 +53,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            z-index: 1100; /* Stay above mobile menu */
         }
 
-        /* Desktop Menu */
-        .nav-menu {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
+        .nav-menu { display: flex; align-items: center; gap: 24px; }
 
         .nav-link {
             text-decoration: none;
@@ -87,9 +66,25 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            position: relative; /* Necessary for badge positioning */
         }
 
         .nav-link:hover { color: var(--primary); }
+
+        /* --- NOTIFICATION BADGE STYLE --- */
+        .badge {
+            background-color: var(--danger);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 20px;
+            min-width: 18px;
+            text-align: center;
+            margin-left: 2px;
+            display: inline-block;
+            line-height: 1;
+        }
 
         .btn-shopping {
             background: var(--primary);
@@ -99,7 +94,6 @@
             font-weight: 700;
         }
 
-        /* User Identity */
         .user-box {
             display: flex;
             align-items: center;
@@ -108,51 +102,23 @@
             border-left: 1px solid #edf2f7;
         }
 
-        /* Mobile Hamburger Icon */
-        .mobile-toggle {
-            display: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: var(--secondary);
-            z-index: 1100;
-        }
+        .mobile-toggle { display: none; cursor: pointer; font-size: 1.5rem; color: var(--secondary); }
 
-        /* --- MOBILE RESPONSIVE LOGIC --- */
         @media (max-width: 992px) {
             .mobile-toggle { display: block; }
-
             .nav-menu {
-                position: fixed;
-                top: 0;
-                right: -100%; /* Hidden off-screen */
-                width: 70%;
-                height: 100vh;
-                background: var(--white);
-                flex-direction: column;
-                justify-content: flex-start;
-                padding: 100px 40px;
-                gap: 30px;
-                transition: 0.3s ease-in-out;
-                box-shadow: -5px 0 15px rgba(0,0,0,0.05);
+                position: fixed; top: 0; right: -100%; width: 70%; height: 100vh;
+                background: var(--white); flex-direction: column; padding: 100px 40px;
+                gap: 30px; transition: 0.3s ease-in-out; box-shadow: -5px 0 15px rgba(0,0,0,0.05);
             }
-
             .nav-menu.active { right: 0; }
-
-            .user-box {
-                border-left: none;
-                border-top: 1px solid #edf2f7;
-                padding-left: 0;
-                padding-top: 20px;
-                width: 100%;
-                flex-direction: column;
-                align-items: flex-start;
-            }
+            .user-box { border-left: none; border-top: 1px solid #edf2f7; padding-top: 20px; width: 100%; flex-direction: column; align-items: flex-start; }
         }
 
-        /* Container & Global Styles */
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .btn-logout { color: #e53e3e; font-weight: 700; text-decoration: none; font-size: 0.9rem; }
+        .btn-logout { color: var(--danger); font-weight: 700; text-decoration: none; font-size: 0.9rem; }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 
@@ -171,10 +137,14 @@
             {% if current_user.is_authenticated %}
                 <a href="{{ url_for('favorite_recipes') }}" class="nav-link">
                     <i class="fa-solid fa-heart"></i> Favorites
+                    <span class="badge">{{ fav_count if fav_count else 0 }}</span>
                 </a>
+
                 <a href="{{ url_for('saved_recipes') }}" class="nav-link">
-                    <i class="fa-solid fa-fire-burner"></i> Saved
+                    <i class="fa-solid fa-fire-burner"></i> Ready to Cook
+                    <span class="badge">{{ ready_count if ready_count else 0 }}</span>
                 </a>
+
                 <a href="{{ url_for('shopping_list') }}" class="nav-link btn-shopping">
                     <i class="fa-solid fa-cart-shopping"></i> List
                 </a>
@@ -197,27 +167,18 @@
     </div>
 
     <script>
+        // Mobile menu logic remains the same
         const mobileBtn = document.getElementById('mobile-menu-btn');
         const navMenu = document.getElementById('nav-menu');
         const icon = mobileBtn.querySelector('i');
 
         mobileBtn.addEventListener('click', () => {
             navMenu.classList.toggle('active');
-
-            // Switch between hamburger and "X" icon
             if (navMenu.classList.contains('active')) {
                 icon.classList.replace('fa-bars', 'fa-xmark');
             } else {
                 icon.classList.replace('fa-xmark', 'fa-bars');
             }
-        });
-
-        // Close menu if a link is clicked
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                navMenu.classList.remove('active');
-                icon.classList.replace('fa-xmark', 'fa-bars');
-            });
         });
     </script>
 </body>

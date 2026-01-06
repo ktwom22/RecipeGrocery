@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: 40px auto; padding: 20px; text-align: center; font-family: sans-serif;">
+    <h2 style="color: #2d3748;">Share Shopping List</h2>
+    <p style="color: #718096; margin-bottom: 30px;">Your items have been combined and organized by aisle.</p>
+
+    <div style="display: grid; gap: 15px;">
+        <a href="{{ whatsapp_link }}" target="_blank" style="background: #25D366; color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: 700; display: block;">
+            <i class="fa-brands fa-whatsapp"></i> Send via WhatsApp
+        </a>
+
+        <a href="{{ sms_link }}" style="background: #3182ce; color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: 700; display: block;">
+            <i class="fa-solid fa-comment-sms"></i> Send via Text Message
+        </a>
+    </div>
+
+    <div style="margin-top: 30px; text-align: left; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <h4 style="margin-top: 0; color: #4a5568;">Preview:</h4>
+        <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.9rem; color: #2d3748; line-height: 1.5;">{{ plain_text }}</pre>
+    </div>
+
+    <p style="margin-top: 20px;">
+        <a href="{{ url_for('shopping_list') }}" style="color: #3182ce; text-decoration: none;">← Back to Shopping List</a>
+    </p>
+</div>
+{% endblock %}
